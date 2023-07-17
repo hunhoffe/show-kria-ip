@@ -40,6 +40,7 @@ After you've populated nmcli.json file with necessary information, reboot your b
 
 ## Troubleshooting
 1. If you can't see anything on the display, make sure the OLED display is connected to the G4 port in the adapter.
-2. If you're getting "No network" on the OLED display, power-cycle the board again. If you still can't connect to the network after a few power-cycling, make sure your nmcli.json file was formatted properly
-3. If you can see the wifi network on the OLED display but can't connect to it via ssh/jupyter or ping, power-cycle the board 1-2 times.
 
+2. If you're getting "No network" on the OLED display, power-cycle the board again. If you still can't connect to the network after a few power-cycling, make sure your nmcli.json file was formatted properly. If it still doesn't work, make sure you have NetworkManager enabled (run `sudo systemctl enable NetworkManager`). If you have other scripts that automatically connects to the wifi at boot time, you need to disable them first.
+
+3. If you can see the wifi network on the OLED display but can't connect to it via ssh/jupyter or ping, power-cycle the board 1-2 times.
