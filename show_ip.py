@@ -9,8 +9,8 @@ def get_ip_address():
 
 def get_oled():
     base = BaseOverlay('base.bit')
-    adapter = PmodGroveAdapter(base.PMODA, G3='grove_oled')
-    return adapter.G3
+    adapter = PmodGroveAdapter(base.PMODA, G4='grove_oled')
+    return adapter.G4
 
 
 def connect_to_network():
@@ -24,8 +24,8 @@ def connect_to_network():
     with open('/etc/nmcli.json', 'r') as f:
         wifis = sorted(json.load(f), key=lambda info: info["priority"], reverse=True)
         for wifi in wifis:
-            ssid = wifi["SSID"]
-            password = wifi["PASSWORD"]
+            ssid = wifi["ssid"]
+            password = wifi["password"]
             is_hidden = 'yes' if wifi["hidden"] == 1 else 'no'
             process = sp.run(['nmcli', 'dev', 'wifi', 'connect', ssid, 'password', password, 'hidden', 'yes'], capture_output=True)
             if process.returncode == 0:
@@ -33,7 +33,7 @@ def connect_to_network():
     return None
 
 
-ssid, password = 'no network', 'null'
+ssid, password = 'no network', ''
 error = ''
 ip_addr = 'localhost'
 
@@ -53,7 +53,7 @@ try:
     oled.deactivate_scroll()
     oled.set_next_row_wrap_mode()
 
-    oled.put_string('ip: {}'.format(ip_addr))
+    oled.put_string('{}'.format(ip_addr))
 
     oled.set_position(3, 0)
     oled.put_string('{}'.format(ssid))
