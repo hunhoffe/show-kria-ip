@@ -12,24 +12,28 @@ def get_oled():
     adapter = PmodGroveAdapter(base.PMODA, G4='grove_oled')
     return adapter.G4
 
-
 def connect_to_network():
     connections = os.listdir('/etc/NetworkManager/system-connections')
-    
+    tries = 3
+
     for file in connections:
         name = file.split('.')[0]
         process = sp.run(['nmcli', 'connection', 'delete', name])
         print('deleted', name, 'with return code', process.returncode)
-
+    
     with open('/etc/nmcli.json', 'r') as f:
         wifis = sorted(json.load(f), key=lambda info: info["priority"], reverse=True)
-        for wifi in wifis:
-            ssid = wifi["ssid"]
-            password = wifi["password"]
-            is_hidden = 'yes' if wifi["hidden"] == 1 else 'no'
-            process = sp.run(['nmcli', 'dev', 'wifi', 'connect', ssid, 'password', password, 'hidden', 'yes'], capture_output=True)
-            if process.returncode == 0:
-                return ssid, password
+        sp.run(['nmcli', 'networking', 'on'])
+        while sp.run(['nmcli', 'connection', 'show']).returncode != 0:
+            pass
+        for _ in range(tries):
+            for wifi in wifis:
+                ssid = wifi["ssid"]
+                password = wifi["password"]
+                is_hidden = 'yes' if wifi["hidden"] == 1 else 'no'
+                process = sp.run(['nmcli', 'dev', 'wifi', 'connect', ssid, 'password', password, 'hidden', 'yes'], capture_output=True)
+                if process.returncode == 0:
+                    return ssid, password
     return None
 
 
