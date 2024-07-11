@@ -12,41 +12,12 @@ def get_oled():
     adapter = PmodGroveAdapter(base.PMODA, G4='grove_oled')
     return adapter.G4
 
-def connect_to_network():
-    connections = os.listdir('/etc/NetworkManager/system-connections')
-    tries = 3
-
-    for file in connections:
-        name = file.split('.')[0]
-        process = sp.run(['nmcli', 'connection', 'delete', name])
-        print('deleted', name, 'with return code', process.returncode)
-    
-    with open('/etc/nmcli.json', 'r') as f:
-        wifis = sorted(json.load(f), key=lambda info: info["priority"], reverse=True)
-        sp.run(['nmcli', 'networking', 'on'])
-        while sp.run(['nmcli', 'connection', 'show']).returncode != 0:
-            pass
-        for _ in range(tries):
-            for wifi in wifis:
-                ssid = wifi["ssid"]
-                password = wifi["password"]
-                is_hidden = 'yes' if wifi["hidden"] == 1 else 'no'
-                process = sp.run(['nmcli', 'dev', 'wifi', 'connect', ssid, 'password', password, 'hidden', 'yes'], capture_output=True)
-                if process.returncode == 0:
-                    return ssid, password
-    return None
-
-
-ssid, password = 'no network', ''
-error = ''
 ip_addr = 'localhost'
-
 try:
-    creds = connect_to_network()
     ip_addr = get_ip_address()
-    if creds is not None:
-        ssid, password = creds
+    print("IP addr is: " + ip_addr)
 except:
+    print("Get IP Addr failed")
     pass
 
 
@@ -58,12 +29,6 @@ try:
     oled.set_next_row_wrap_mode()
 
     oled.put_string('{}'.format(ip_addr))
-
-    oled.set_position(3, 0)
-    oled.put_string('{}'.format(ssid))
-    
-    oled.set_position(5, 0)
-    oled.put_string('{}'.format(password))
     del oled
 except:
     print('No device found')
